@@ -41,9 +41,21 @@ python run_all.py
 
 This runs, in order: a smoke test, the main cohort (200 patients, 256 particles, noise 0.05), a noise check (100
 patients, noise 0.10), a particle-count check (40 patients, 512 particles), the runtime benchmark and the analyses.
-Progress is written to `logs/run_all.log`. On an AMD Ryzen 5 5600H with 8 worker processes one patient takes about
-15 minutes at 256 particles, so the full pipeline takes roughly 12 hours. Set `DTSYNC_WORKERS` to change the number of
-worker processes.
+Progress is written to `logs/run_all.log`. Set `DTSYNC_WORKERS` to change the number of worker processes; results do
+not depend on it. On an AMD Ryzen 5 5600H one patient takes about 15 minutes at 256 particles with 8 workers, so the
+full pipeline takes roughly 12 hours.
+
+On a laptop, run it with 6 of the 12 logical cores and the safety guard next to it (PowerShell):
+
+```
+$env:DTSYNC_WORKERS = "6"
+$p = Start-Process .venv\Scripts\python.exe run_all.py -PassThru
+.venv\Scripts\python.exe safety_guard.py $p.Id
+```
+
+`safety_guard.py` is a backstop that never slows a normal run: it warns at 90% system RAM and stops the run at 95%,
+suspends the run while the laptop is on battery (stopping after 240 minutes), and logs RAM, CPU load and the actual
+CPU clock to `logs/safety.log` every 10 minutes. Stopped runs resume where they left off.
 
 Individual steps:
 
@@ -70,6 +82,7 @@ The scan-budget versus detection-delay figure is `figs/main/tradeoff.pdf`, produ
 | `analyze.py` | Summary statistics, bootstrap CIs, figures and the per-patient CSV |
 | `split_scans.py` | Scan counts split by progression status |
 | `bench.py` | Runtime benchmark, writes `figs/bench.json` |
+| `safety_guard.py` | RAM, battery and CPU-clock backstop for long runs on a laptop |
 | `fig_framework.py`, `fig_snapshots.py` | Figures 1 and 2 |
 | `pilot/` | Pilot run (30 patients, 128 particles): `summary.json` and `patients.csv` |
 | `figs/` | Analysis outputs per run (`main`, `noise10`, `p512`, `pilot`) and `paper/` figures |

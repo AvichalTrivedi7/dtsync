@@ -22,8 +22,9 @@ def one(seed, P, noise, out):
         pol["daily"] = pol["daily"].astype(np.float32)
     r["true_area"] = r["true_area"].astype(np.float32)
     r["runtime_s"] = time.time() - t
-    with open(f, "wb") as fh:
+    with open(f + ".tmp", "wb") as fh:          # write then rename, so a stopped run never leaves a partial file
         pickle.dump(r, fh)
+    os.replace(f + ".tmp", f)
     return seed, r["t_prog"], r["runtime_s"]
 
 

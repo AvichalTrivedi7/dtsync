@@ -67,6 +67,7 @@ python split_scans.py figs/main/patients.csv                                # sc
 python bench.py                                                             # runtime of propagation and assimilation
 python fig_framework.py                                                     # figs/paper/fig1_framework
 python fig_snapshots.py 2001 trig_0.1                                       # figs/paper/fig2_snapshots
+python fig_tracking.py results/main                                          # figs/paper/figS_tracking (optional)
 ```
 
 The scan-budget versus detection-delay figure is `figs/main/tradeoff.pdf`, produced by `analyze.py`.
@@ -83,7 +84,7 @@ The scan-budget versus detection-delay figure is `figs/main/tradeoff.pdf`, produ
 | `split_scans.py` | Scan counts split by progression status |
 | `bench.py` | Runtime benchmark, writes `figs/bench.json` |
 | `safety_guard.py` | RAM, battery and CPU-clock backstop for long runs on a laptop |
-| `fig_framework.py`, `fig_snapshots.py` | Figures 1 and 2 |
+| `fig_framework.py`, `fig_snapshots.py`, `fig_tracking.py` | Figures 1 and 2, optional tracking figure |
 | `pilot/` | Pilot run (30 patients, 128 particles): `summary.json` and `patients.csv` |
 | `figs/` | Analysis outputs per run (`main`, `noise10`, `p512`, `pilot`) and `paper/` figures |
 | `docs/RUN_GUIDE_WINDOWS.md` | Step-by-step guide for running the pipeline on a Windows laptop |

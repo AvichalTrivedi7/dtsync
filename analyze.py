@@ -59,8 +59,8 @@ def summarise(rs):
                         false_alarm += 1
                     else:                                     # within 30 d measurement tolerance: on time
                         delays.append(max(det - tp, 0))
-                elif det is not None and (tp is None or det < tp - 30):
-                    false_alarm += 1
+                elif det is not None and det <= d.EVAL_END and (tp is None or det < tp - 30):
+                    false_alarm += 1                          # only alarms inside the scoring window count
             ms = [r["results"][pol].get("assim_ms") for r in rs]
             row["assim_ms"] = float(np.mean([m for m in ms if m])) if any(ms) else np.nan
             row["delay"] = boot_ci(delays)

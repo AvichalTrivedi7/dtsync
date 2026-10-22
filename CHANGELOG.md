@@ -24,6 +24,14 @@ Mechanism of the false alarms that remain: when the enhancing area falls to zero
 zero and the progression rule reduces to a measured enhancing area of at least 100 mm^2; image noise can lift a
 region whose true density sits just below the T1Gd threshold over it.
 
+### Added: optional mask clean-up for a supplementary noise sensitivity run (off by default)
+
+`dtsync.CLEAN_MASKS` (default `False`) and `run_batch_mp.py --clean` keep only the largest connected FLAIR region in
+each synthetic image and count enhancement only inside it, as a segmentation pipeline would. With the default the
+imaging model is unchanged (checked: `observe()` returns exactly the raw thresholded masks). Reason: at noise 0.10 the
+uncleaned images carry several hundred mm^2 of scattered false-positive FLAIR, which biases every twin; the
+supplementary run tests whether the noise result is driven by this. All main and robustness results use the default.
+
 ### Changed: robustness and laptop safety (no effect on results)
 
 - `run_batch_mp.py` writes each patient file under a temporary name and renames it, so a stopped run never leaves a

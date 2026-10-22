@@ -10,7 +10,7 @@ Policies       : static (no updates), fixed-interval imaging, uncertainty/risk-t
 import time
 import zlib
 import numpy as np
-from scipy.ndimage import gaussian_filter
+from scipy.ndimage import gaussian_filter, label
 
 # ---------------- clinical timeline (days from diagnosis) ----------------
 T_PRE = 30           # pre-treatment planning scan
@@ -22,6 +22,8 @@ HORIZON = SIM_END
 TH_FLAIR, TH_T1 = 0.16, 0.80
 PROG = 1.25          # 2D analogue of RANO: >=25% area increase over nadir
 A_MIN = 100.0        # and an absolute increase of at least 100 mm^2 (~11 mm lesion)
+CLEAN_MASKS = False  # supplementary sensitivity run only (off in every main and robustness run): keep the largest
+                     # connected FLAIR region and count enhancement only inside it, as a segmentation pipeline would
 
 
 def is_prog(area, nadir):
@@ -97,6 +99,16 @@ class Grid:
 def smooth_noise(rng, shape, sigma_px):
     z = gaussian_filter(rng.standard_normal(shape), sigma_px)
     return (z / (z.std() + 1e-12)).astype(np.float32)
+
+
+def largest_region(fl, t1):
+    """Keep the largest connected FLAIR region and the enhancement inside it (used only when CLEAN_MASKS is on)."""
+    lab, n = label(fl)
+    if n <= 1:
+        return fl, t1
+    sizes = np.bincount(lab.ravel()); sizes[0] = 0
+    keep = lab == sizes.argmax()
+    return keep, t1 & keep
 
 
 def dice(a, b):
@@ -183,6 +195,8 @@ class Patient:
         # common random numbers: the image acquired on a given day is identical whichever policy requested it
         r = np.random.default_rng([self.seed, day])
         f = self.coarse_fields[day] + noise * smooth_noise(r, self.coarse_fields[day].shape, 1.0) * self.coarse.brain
+        if CLEAN_MASKS:
+            return largest_region(f >= TH_FLAIR, f >= TH_T1)
         return f >= TH_FLAIR, f >= TH_T1
 
     def true_masks(self, day):

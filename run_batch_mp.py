@@ -12,10 +12,11 @@ import dtsync as d
 from run_batch import POLICIES
 
 
-def one(seed, P, noise, out):
+def one(seed, P, noise, out, clean=False):
     f = os.path.join(out, f"patient_{seed}.pkl")
     if os.path.exists(f):
         return seed, None, 0.0
+    d.CLEAN_MASKS = clean                       # supplementary option, off by default
     t = time.time()
     r = d.run_patient(seed, P=P, policies=POLICIES, noise=noise)
     for pol in r["results"].values():
@@ -35,6 +36,7 @@ if __name__ == "__main__":
     ap.add_argument("--seed0", type=int, default=2000)
     ap.add_argument("--noise", type=float, default=0.05)
     ap.add_argument("--out", default="results/main")
+    ap.add_argument("--clean", action="store_true", help="supplementary: keep only the largest connected lesion in each mask")
     ap.add_argument("--workers", type=int,
                     default=int(os.environ.get("DTSYNC_WORKERS", max(1, min(8, (os.cpu_count() or 2) - 2)))))
     a = ap.parse_args()
@@ -42,7 +44,7 @@ if __name__ == "__main__":
     t0 = time.time()
     ctx = multiprocessing.get_context("spawn")          # same behaviour on Windows, macOS and Linux
     with ProcessPoolExecutor(max_workers=a.workers, mp_context=ctx) as ex:
-        futs = [ex.submit(one, a.seed0 + i, a.P, a.noise, a.out) for i in range(a.n)]
+        futs = [ex.submit(one, a.seed0 + i, a.P, a.noise, a.out, a.clean) for i in range(a.n)]
         for k, fu in enumerate(as_completed(futs), 1):
             seed, tp, rt = fu.result()
             print(f"[{k}/{a.n}] seed {seed} t_prog={tp} patient {rt:.0f}s total {time.time() - t0:.0f}s", flush=True)

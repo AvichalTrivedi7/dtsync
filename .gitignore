@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+results/
+logs/
+paper/
+CONTEXT.md
+CLAUDE.md
+upload_bundle.zip
+*.pkl
+.claude/
+RUNLOG.md

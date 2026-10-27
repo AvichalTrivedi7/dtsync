@@ -11,8 +11,8 @@ for fam in ("Times New Roman", "Liberation Serif", "DejaVu Serif"):
         break
 plt.rcParams.update({"font.size": 7, "mathtext.fontset": "stix", "savefig.dpi": 300})
 
-fig, ax = plt.subplots(figsize=(4.72, 1.65))          # 12 cm wide, LNCS text width is 12.2 cm
-ax.set_xlim(0, 101); ax.set_ylim(2.5, 40); ax.axis("off")
+fig, ax = plt.subplots(figsize=(4.72, 1.47))          # 12 cm wide, LNCS text width is 12.2 cm
+ax.set_xlim(0, 101); ax.set_ylim(5.8, 40); ax.axis("off")
 
 def box(x, y, w, h, title, body, fc):
     ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.6,rounding_size=1.5", fc=fc, ec="black", lw=0.7))
@@ -32,8 +32,6 @@ arrow((65.6, 26), (73.4, 26), "Forecast")
 ax.text(69.5, 24.3, "with\nuncertainty", ha="center", va="top", fontsize=6.0, color="0.3")
 ax.add_patch(FancyArrowPatch((87.5, 14.0), (14.0, 14.0), arrowstyle="-|>", mutation_scale=8, lw=0.9, color="black",
                              connectionstyle="arc3,rad=-0.16"))
-ax.text(50.5, 3.6, "Scan request: the twin decides when the next image is acquired (twin-to-patient link)",
-        ha="center", fontsize=6.5, style="italic")
 fig.tight_layout(pad=0.1)
 os.makedirs("figs/paper", exist_ok=True)
 fig.savefig("figs/paper/fig1_framework.png"); fig.savefig("figs/paper/fig1_framework.pdf")
